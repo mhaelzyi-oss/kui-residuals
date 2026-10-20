@@ -1,5 +1,7 @@
 [versions]
 kotlin = "2.4.20"
+agp = "8.13.2"
+compose-bom = "2026.09.00"
 junit = "5.11.4"
 mockk = "1.13.13"
 coroutines = "1.11.0"
@@ -12,6 +14,9 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

@@ -14,7 +14,7 @@ class ShizukuAccessProvider(
 
     override fun list(path: GuardedPath): Sequence<Dirent> {
         requireAvailable()
-        val result = session.exec("ls -1p -- '${path.canonical}'")
+        val result = session.exec("ls -1ap -- '${path.canonical}'")
         if (result.code != 0) throw AccessDenied(result.stderr.ifBlank { "Shizuku list refused." })
         return parseLs(result.stdout).asSequence()
     }
@@ -26,6 +26,36 @@ class ShizukuAccessProvider(
         return parseStat(result.stdout)
     }
 
+    override fun mkdir(path: GuardedPath) {
+        requireAvailable()
+        session.mkdirp(path)
+    }
+
+    override fun move(from: GuardedPath, to: GuardedPath) {
+        requireAvailable()
+        session.moveInto(from, to)
+    }
+
+    override fun copy(from: GuardedPath, to: GuardedPath) {
+        requireAvailable()
+        session.copyInto(from, to)
+    }
+
+    override fun deleteTree(path: GuardedPath) {
+        requireAvailable()
+        session.removeTree(path)
+    }
+
+    override fun read(path: GuardedPath): ByteArray {
+        requireAvailable()
+        return session.catFile(path)
+    }
+
+    override fun write(path: GuardedPath, bytes: ByteArray) {
+        requireAvailable()
+        session.putFile(path, bytes)
+    }
+
     private fun requireAvailable() {
         if (!available) throw AccessDenied("Shizuku is not available.")
     }
@@ -35,7 +65,7 @@ internal fun parseLs(stdout: String): List<Dirent> =
     stdout
         .lineSequence()
         .map { it.trim() }
-        .filter { it.isNotEmpty() && it != "." && it != ".." }
+        .filter { it.isNotEmpty() && it != "." && it != ".." && it != "./" && it != "../" }
         .map { line ->
             val directory = line.endsWith("/")
             Dirent(name = line.removeSuffix("/"), directory = directory)

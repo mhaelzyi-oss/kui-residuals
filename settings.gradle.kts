@@ -18,3 +18,5 @@ dependencyResolutionManagement {
 rootProject.name = "kui-residuals"
 include(":core:access")
 include(":core:scanner")
+include(":core:quarantine")
+// :app needs an Android SDK. Uncomment include(":app") after Sdk is installed.

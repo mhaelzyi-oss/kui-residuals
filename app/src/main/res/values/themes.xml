@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.KuiResiduals" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#f7f4ee</item>
+        <item name="android:navigationBarColor">#f7f4ee</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

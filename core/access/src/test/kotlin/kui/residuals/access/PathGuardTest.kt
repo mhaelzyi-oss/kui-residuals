@@ -21,6 +21,8 @@ class PathGuardTest {
     fun admitsObbAndMedia() {
         assertEquals(RootKind.OBB, guard.admit("${volume.androidRoot(RootKind.OBB)}/com.foo").root)
         assertEquals(RootKind.MEDIA, guard.admit("${volume.androidRoot(RootKind.MEDIA)}/com.foo").root)
+        assertEquals(RootKind.SET_ASIDE, guard.admit("${volume.androidRoot(RootKind.SET_ASIDE)}/com.foo/data").root)
+        assertEquals(RootKind.COPIES, guard.admit("${volume.androidRoot(RootKind.COPIES)}/com.foo/data").root)
     }
 
     @Test

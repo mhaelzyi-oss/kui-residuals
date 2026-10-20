@@ -34,7 +34,7 @@ class ResidualScanner(
             var skipped = 0L
             try {
                 for (volume in volumes) {
-                    for (kind in RootKind.entries) {
+                    for (kind in scanKinds) {
                         currentCoroutineContext().ensureActive()
                         val root = guard.admit(volume.androidRoot(kind))
                         for (entry in access.list(root)) {
@@ -63,8 +63,9 @@ class ResidualScanner(
                                         ScanHit(
                                             path = child,
                                             mark = mark,
-                                            packageName = entry.name.takeIf { looksLikePackageName(it) },
+                                            packageName = packageNameOf(entry.name),
                                             reason = reason,
+                                            hidden = entry.hidden,
                                         ),
                                     ),
                                 )
@@ -88,4 +89,8 @@ class ResidualScanner(
                 emit(ScanEvent.Failed(denied.message ?: "Access denied."))
             }
         }.flowOn(dispatcher)
+
+    companion object {
+        val scanKinds = listOf(RootKind.DATA, RootKind.OBB, RootKind.MEDIA)
+    }
 }

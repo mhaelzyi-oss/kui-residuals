@@ -13,6 +13,7 @@ data class ScanHit(
     val mark: FolderMark,
     val packageName: String?,
     val reason: String,
+    val hidden: Boolean = false,
 )
 
 data class ScanProgress(
@@ -38,10 +39,24 @@ internal fun classify(
     directory: Boolean,
     packages: PackageIndex,
 ): Pair<FolderMark, String> {
-    if (!directory) return FolderMark.UNKNOWN to "Not a folder."
-    if (!looksLikePackageName(name)) return FolderMark.UNKNOWN to "Not a package name."
-    if (packages.isSystemOrProtected(name)) return FolderMark.SKIP to "System or protected."
-    if (packages.isRunning(name)) return FolderMark.SKIP to "Currently running."
-    if (packages.isInstalled(name)) return FolderMark.SKIP to "Package is installed."
-    return FolderMark.RESIDUAL to "No installed package."
+    val pkg = packageNameOf(name)
+    val hidden = name.startsWith(".")
+    if (!directory) {
+        if (!hidden || pkg == null) return FolderMark.UNKNOWN to "Not a folder."
+        return classifyPackage(pkg, packages, hidden)
+    }
+    if (pkg == null) return FolderMark.UNKNOWN to "Not a package name."
+    return classifyPackage(pkg, packages, hidden)
+}
+
+private fun classifyPackage(
+    pkg: String,
+    packages: PackageIndex,
+    hidden: Boolean,
+): Pair<FolderMark, String> {
+    if (packages.isSystemOrProtected(pkg)) return FolderMark.SKIP to "System or protected."
+    if (packages.isRunning(pkg)) return FolderMark.SKIP to "Currently running."
+    if (packages.isInstalled(pkg)) return FolderMark.SKIP to "Package is installed."
+    val why = if (hidden) "Hidden leftover. The app is gone." else "No installed package."
+    return FolderMark.RESIDUAL to why
 }

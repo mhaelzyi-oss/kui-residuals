@@ -1,0 +1,4 @@
+- `mv` across filesystems on some OEMs copies then fails to unlink. Need a device check that the source is gone before listing leftovers again.
+- `rm -rf` is only allowed on SET_ASIDE after re-admit. A TOCTOU swap of that folder for a symlink is rejected by PathGuard prefixes, then re-admit immediately before delete.
+- Folders the person picked can change files. Root is never required. Delete is still only SET_ASIDE after re-admit.
+- Scanner must not walk SetAside. If someone adds RootKind.entries back, set-aside folders could look like leftovers.

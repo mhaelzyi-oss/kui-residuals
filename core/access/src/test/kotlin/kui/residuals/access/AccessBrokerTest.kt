@@ -24,7 +24,7 @@ class AccessBrokerTest {
     private val data = guard.admit(volume.androidRoot(RootKind.DATA))
 
     @Test
-    fun prefersShizukuThenRootThenSaf() {
+    fun prefersShizukuThenFoldersYouPickedThenOptionalRoot() {
         val shizuku = ToggleProvider(AccessKind.SHIZUKU, on = true)
         val root = ToggleProvider(AccessKind.ROOT, on = true)
         val saf = ToggleProvider(AccessKind.SAF, on = true)
@@ -32,10 +32,10 @@ class AccessBrokerTest {
         assertEquals(AccessKind.SHIZUKU, broker.pick()?.kind)
 
         shizuku.on = false
-        assertEquals(AccessKind.ROOT, broker.pick()?.kind)
+        assertEquals(AccessKind.SAF, broker.pick()?.kind)
 
-        val noRoot = AccessBroker(shizuku, root, saf, rootEnabled = { false })
-        assertEquals(AccessKind.SAF, noRoot.pick()?.kind)
+        saf.on = false
+        assertEquals(AccessKind.ROOT, broker.pick()?.kind)
     }
 
     @Test
@@ -74,16 +74,17 @@ class AccessBrokerTest {
         val session =
             ScriptedShell(
                 mapOf(
-                    "ls -1p -- '${data.canonical}'" to
-                        ShellResult(0, "com.example.old/\nCache\nunknown.bin\n"),
+                    "ls -1ap -- '${data.canonical}'" to
+                        ShellResult(0, "com.example.old/\n.com.example.old/\nCache\nunknown.bin\n"),
                     "stat -c '%F %s' -- '${data.canonical}'" to
                         ShellResult(0, "directory 4096\n"),
                 ),
             )
         val provider = ShizukuAccessProvider(session, alive = { true }, granted = { true })
         val names = provider.list(data).map { it.name }.toList()
-        assertEquals(listOf("com.example.old", "Cache", "unknown.bin"), names)
+        assertEquals(listOf("com.example.old", ".com.example.old", "Cache", "unknown.bin"), names)
         assertTrue(provider.list(data).first().directory)
+        assertTrue(provider.list(data).toList()[1].hidden)
         assertEquals(4096, provider.stat(data).size)
     }
 

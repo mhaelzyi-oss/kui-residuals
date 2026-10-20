@@ -1,0 +1,18 @@
+---
+description: Ship the real product surface; never leave the user asking where the app is.
+alwaysApply: true
+---
+
+# Product surface
+
+This repo is a phone app (leftover folders, file look, on-device crash notes) with a desktop twin in `kui-prompt` named **KUI Desk**. When the user says show, open, or done, they mean that app, not a lesson, dump, or architecture note.
+
+- Land on the app. A lesson is optional and must return to the app. Skip must skip.
+- Every visible control does something. Disabled controls say why, in plain words.
+- Tabs the product owes: Leftovers, Files, Debug.
+- Both apps change leftover files the person granted. Set aside first. Delete forever is caution (red-gold), two confirms. Save a copy is the same caution color. Root is never required. Folders they pick, or Shizuku if they already use it, is enough.
+- Hidden leftover names (a leading dot plus an app id) count if the app is gone. Unknown is never leftover.
+- KUI Desk talks to several phones at once. It can set aside, edit, save a copy to this PC, and delete leftover files on a phone they authorized.
+- Words a person uses: leftover, still on the phone, set aside, delete forever, hidden leftover, save a copy. No residual, classifier, Flow, PathGuard, visited.
+- Nothing is uploaded.
+- Before you stop, click the path a person would click. If they would have to ask "where is the app" or "why is this dead", fix it first.

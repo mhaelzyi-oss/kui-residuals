@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "hooks": {
+    "stop": [
+      {
+        "type": "prompt",
+        "timeout": 25,
+        "loop_limit": 1,
+        "prompt": "Product-gap check for this turn. Do not wait for the user to notice.\n\n1. Did we put the actual app on screen (Leftovers, Files, Debug), or a lesson/demo/dump standing in for it?\n2. Does every visible button work, including Done, Continue, Skip, and tabs?\n3. Would a person still have to ask where the app is, why a control is dead, or what a word means?\n4. Phone and desktop both considered? Read-only, nothing uploaded, no jargon.\n\nIf a gap is real, return a followup_message that tells the agent to fix it now. If the product surface is complete, allow stop.\n\nHook input: $ARGUMENTS"
+      }
+    ],
+    "subagentStop": [
+      {
+        "type": "prompt",
+        "timeout": 20,
+        "loop_limit": 1,
+        "prompt": "A review or helper just finished. If it found a missing app surface, a dead control, jargon, or a tutorial standing in for the product, return followup_message with the parent’s next fix. If the review is clean, no follow-up.\n\nHook input: $ARGUMENTS"
+      }
+    ]
+  }
+}

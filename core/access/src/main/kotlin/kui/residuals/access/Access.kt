@@ -17,7 +17,9 @@ enum class AccessState {
 data class Dirent(
     val name: String,
     val directory: Boolean,
-)
+) {
+    val hidden: Boolean get() = name.startsWith(".")
+}
 
 data class NodeStat(
     val directory: Boolean,
@@ -29,9 +31,36 @@ interface AccessProvider {
     val kind: AccessKind
     val available: Boolean
 
+    val canChange: Boolean
+        get() = available
+
     fun list(path: GuardedPath): Sequence<Dirent>
 
     fun stat(path: GuardedPath): NodeStat
+
+    fun mkdir(path: GuardedPath) {
+        throw AccessDenied("This access cannot change files.")
+    }
+
+    fun move(from: GuardedPath, to: GuardedPath) {
+        throw AccessDenied("This access cannot change files.")
+    }
+
+    fun copy(from: GuardedPath, to: GuardedPath) {
+        throw AccessDenied("This access cannot change files.")
+    }
+
+    fun deleteTree(path: GuardedPath) {
+        throw AccessDenied("This access cannot change files.")
+    }
+
+    fun read(path: GuardedPath): ByteArray {
+        throw AccessDenied("This access cannot read files.")
+    }
+
+    fun write(path: GuardedPath, bytes: ByteArray) {
+        throw AccessDenied("This access cannot change files.")
+    }
 }
 
 class AccessBroker(
@@ -48,8 +77,8 @@ class AccessBroker(
         val chosen =
             when {
                 shizuku.available -> shizuku
-                rootEnabled() && root.available -> root
                 saf.available -> saf
+                rootEnabled() && root.available -> root
                 else -> null
             }
         state =

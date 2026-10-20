@@ -43,6 +43,7 @@ class ResidualScannerTest {
                     data to
                         sequenceOf(
                             Dirent("com.example.old", directory = true),
+                            Dirent(".com.example.old", directory = true),
                             Dirent("com.example.live", directory = true),
                             Dirent("com.android.systemui", directory = true),
                             Dirent("com.running.now", directory = true),
@@ -76,15 +77,17 @@ class ResidualScannerTest {
             }
             val byName = hits.associate { it.path.canonical.substringAfterLast('/') to it.mark }
             assertEquals(FolderMark.RESIDUAL, byName["com.example.old"])
+            assertEquals(FolderMark.RESIDUAL, byName[".com.example.old"])
             assertEquals(FolderMark.SKIP, byName["com.example.live"])
             assertEquals(FolderMark.SKIP, byName["com.android.systemui"])
             assertEquals(FolderMark.SKIP, byName["com.running.now"])
             assertEquals(FolderMark.UNKNOWN, byName["Cache"])
             assertEquals(FolderMark.UNKNOWN, byName["notes.txt"])
-            assertEquals(1, done!!.residual)
+            assertEquals(2, done!!.residual)
             assertEquals(2, done.unknown)
             assertEquals(3, done.skipped)
-            assertEquals(6, done.visited)
+            assertEquals(7, done.visited)
+            assertTrue(hits.first { it.path.canonical.endsWith("/.com.example.old") }.hidden)
         }
 
     @Test

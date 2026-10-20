@@ -1,23 +1,15 @@
 # KUI Residuals
 
-Phone app: leftover package folders, a file browser under three Android roots, and an on-device crash/ANR explainer. Desktop twin is [KUI Prompt](https://github.com/sponsors/mhaelzyi-oss) in the sibling `kui-prompt` repo. MIT. Gold `#c9a227`. Nothing is uploaded.
+See leftover folders from apps you already removed, including hidden names that linger. Open files. Edit them. Set them aside. Save a copy. Delete forever only after that, with a caution confirm.
 
-Peak path is Shizuku (sideload). Root is optional and off. SAF is a labeled fallback. Play Store is a later reduced flavor.
+If a name is not an app, we leave it. Nothing is uploaded. Root is not required — pick the folders, or use Shizuku if you already have it.
 
-## Now
-
-`:core:access` and `:core:scanner`. Path guard, provider pick, residual classifier (package-name folders only), Flow progress, cancel.
+Phone app: Leftovers, Files, Debug. Desktop twin is **KUI Desk** (`kui-prompt`). That computer talks to several phones you plug in and can do the same leftover work on each one.
 
 ```text
-./gradlew :core:access:test :core:scanner:test
+./gradlew :core:access:test :core:scanner:test :core:quarantine:test
+./gradlew :core:scanner:demoScan
+./gradlew :app:assembleDebug
 ```
 
-Needs JDK 17. Android SDK is not required for these modules.
-
-## After this
-
-UI (`:core:ui` + setup) → quarantine. One module per step.
-
-## Not this
-
-Kernel debugging, Magisk, FRP, other people’s phones, deleting from the PC, marking non-package folders as residual.
+Install the debug APK from `app/build/outputs/apk/debug/` after an Android SDK is present. Read TERMS.md.

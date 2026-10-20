@@ -4,6 +4,8 @@ enum class RootKind {
     DATA,
     OBB,
     MEDIA,
+    SET_ASIDE,
+    COPIES,
 }
 
 data class Volume(
@@ -15,7 +17,11 @@ data class Volume(
     }
 
     fun androidRoot(kind: RootKind): String =
-        join(emulatedRoot, "Android", kind.folderName)
+        when (kind) {
+            RootKind.SET_ASIDE -> join(emulatedRoot, "KUIResiduals", "SetAside")
+            RootKind.COPIES -> join(emulatedRoot, "KUIResiduals", "Copies")
+            else -> join(emulatedRoot, "Android", kind.folderName)
+        }
 }
 
 val RootKind.folderName: String
@@ -24,6 +30,8 @@ val RootKind.folderName: String
             RootKind.DATA -> "data"
             RootKind.OBB -> "obb"
             RootKind.MEDIA -> "media"
+            RootKind.SET_ASIDE -> "SetAside"
+            RootKind.COPIES -> "Copies"
         }
 
 fun posix(path: String): String = path.replace('\\', '/')

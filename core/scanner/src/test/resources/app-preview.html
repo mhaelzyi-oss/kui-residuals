@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>KUI Residuals</title>
+  <style>
+    :root {
+      --cream: #f7f4ee;
+      --ink: #1d1d1f;
+      --mute: #6e6e73;
+      --gold: #c9a227;
+      --line: rgba(0,0,0,.08);
+      --card: #fffcf7;
+      --caution: #6b1414;
+      --caution-gold: #e8c547;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #ebe6dc; color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased; }
+    .phone { max-width: 430px; height: 100%; margin: 0 auto; background: var(--cream);
+      display: flex; flex-direction: column; position: relative; overflow: hidden; }
+    header { display: flex; justify-content: space-between; align-items: baseline;
+      padding: 18px 22px 0; }
+    .brand { margin: 0; font-size: 13px; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 600; color: var(--gold); }
+    .status { font-size: 13px; color: var(--mute); }
+    h1 { font-size: 32px; letter-spacing: -.03em; margin: 8px 22px 4px; }
+    .sub { margin: 0 22px 16px; color: var(--mute); font-size: 15px; line-height: 1.4; }
+    main { flex: 1; padding: 0 16px 88px; overflow: auto; }
+    .panel { display: none; }
+    .panel.on { display: block; }
+    .card, .row { background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+    .card { padding: 16px; margin: 0 0 10px; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+    .card b, .row b { display: block; font-size: 16px; }
+    .card span, .row span { display: block; margin-top: 4px; color: var(--mute); font-size: 14px; }
+    .kicker { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--gold); margin: 0 0 6px; }
+    .group { margin: 18px 0 8px; font-size: 13px; font-weight: 600; color: var(--mute); }
+    .row { display: block; width: 100%; padding: 14px 16px; margin: 0 0 8px; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+    .empty { padding: 28px 8px; color: var(--mute); }
+    nav.tabs { position: sticky; bottom: 0; z-index: 5; display: grid; grid-template-columns: 1fr 1fr 1fr;
+      background: var(--cream); border-top: 1px solid var(--line); padding: 8px 8px 14px; }
+    nav.tabs button { border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600;
+      color: var(--mute); padding: 10px 8px; border-radius: 12px; cursor: pointer; }
+    nav.tabs button.on { color: var(--ink); background: rgb(201 162 39 / 22%); }
+    .pill { border: 0; background: none; color: var(--mute); font: inherit; font-size: 15px; cursor: pointer; }
+    .sheet, .lesson { position: absolute; inset: 0; z-index: 10; background: var(--cream); display: none;
+      flex-direction: column; padding: 18px 22px 28px; }
+    .sheet .pill, .lesson .pill { align-self: flex-start; }
+    .sheet.on, .lesson.on { display: flex; }
+    .sheet[hidden], .lesson[hidden] { display: none !important; }
+    .sheet h2, .lesson h2 { font-size: 28px; letter-spacing: -.03em; margin: 12px 0 10px; }
+    .sheet p, .lesson p { color: var(--mute); font-size: 16px; line-height: 1.45; margin: 0 0 12px; }
+    ul { list-style: none; margin: 8px 0 20px; padding: 0; }
+    li { padding: 12px 0; border-top: 1px solid var(--line); }
+    li:first-child { border-top: 0; }
+    li b { display: block; }
+    li span { display: block; color: var(--mute); font-size: 14px; margin-top: 4px; }
+    .go { border: 0; background: var(--ink); color: #fff; font: inherit;
+      font-size: 17px; font-weight: 600; border-radius: 980px; padding: 14px; cursor: pointer; width: 100%; }
+    .caution { border: 1px solid var(--gold); background: var(--caution); color: var(--caution-gold); font: inherit;
+      font-size: 17px; font-weight: 700; border-radius: 980px; padding: 14px; cursor: pointer; width: 100%;
+      letter-spacing: .02em; }
+    .ghost { border: 0; background: none; color: var(--mute); font: inherit; font-size: 16px;
+      padding: 12px 0; cursor: pointer; }
+    .dock, .actions { margin-top: auto; padding-top: 12px; }
+    .dock .go, .dock .caution { margin-top: 8px; }
+    .actions { display: flex; gap: 12px; align-items: center; }
+    .actions .go { flex: 1; width: auto; }
+    .note { color: var(--mute); font-size: 15px; line-height: 1.4; margin: 0 0 12px; }
+    .id { display: block; margin-top: 6px; font-size: 13px; color: var(--mute); font-weight: 500; }
+    pre { white-space: pre-wrap; background: var(--card); border: 1px solid var(--line);
+      border-radius: 14px; padding: 14px; font-size: 13px; line-height: 1.4; }
+    textarea { width: 100%; min-height: 120px; border: 1px solid var(--line); border-radius: 14px;
+      padding: 12px; font: inherit; font-size: 15px; background: var(--card); resize: vertical; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <header>
+      <p class="brand">KUI Residuals</p>
+      <span class="status" id="status">This phone</span>
+    </header>
+
+    <h1 id="title">Leftovers</h1>
+    <p class="sub" id="sub"></p>
+    <p style="margin:-8px 22px 12px"><button class="pill" id="how" type="button">How it works</button></p>
+
+    <main>
+      <section class="panel on" id="tab-leftovers"></section>
+      <section class="panel" id="tab-files"></section>
+      <section class="panel" id="tab-debug">
+        <article class="card" id="crash-card">
+          <p class="kicker">Last crash</p>
+          <b>Camera closed</b>
+          <span>A screen opened with nothing in it, so Camera closed. This phone only.</span>
+        </article>
+        <article class="card" id="freeze-card">
+          <p class="kicker">Last freeze</p>
+          <b>Messages sat still</b>
+          <span>The app did not respond. This phone only. Nothing was uploaded.</span>
+        </article>
+        <button class="card" id="send" type="button">
+          <b>Copy a short note</b>
+          <span>Stays on this machine. KUI Desk can open it on the computer.</span>
+        </button>
+        <p class="empty" id="copied" hidden></p>
+      </section>
+    </main>
+
+    <nav class="tabs">
+      <button type="button" class="on" data-go="leftovers">Leftovers</button>
+      <button type="button" data-go="files">Files</button>
+      <button type="button" data-go="debug">Debug</button>
+    </nav>
+
+    <div class="sheet" id="sheet" hidden>
+      <button class="pill" id="sheet-back" type="button">Back</button>
+      <p class="kicker" id="sheet-kicker"></p>
+      <h2 id="sheet-title"></h2>
+      <p id="sheet-why"></p>
+      <ul id="sheet-list"></ul>
+      <div id="sheet-edit" hidden>
+        <textarea id="sheet-text" aria-label="File text"></textarea>
+      </div>
+      <div class="dock">
+        <p class="note" id="sheet-note"></p>
+        <button class="go" id="sheet-go" type="button">Set aside</button>
+        <button class="caution" id="sheet-copy" type="button">Save a copy</button>
+        <button class="caution" id="sheet-delete" type="button">Delete forever</button>
+        <button class="ghost" id="sheet-close" type="button">Back</button>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson" hidden>
+      <button class="pill" id="skip" type="button">Skip</button>
+      <h2 id="lesson-title"></h2>
+      <p id="lesson-body"></p>
+      <ul id="lesson-list"></ul>
+      <div class="actions">
+        <button class="ghost" id="lesson-back" type="button">Back</button>
+        <button class="go" id="lesson-next" type="button">Continue</button>
+      </div>
+    </div>
+  </div>
+  <script id="scan" type="application/json">__SCAN__</script>
+  <script>
+    const FALLBACK = {"hits":[
+      {"name":"com.example.old","folder":"com.example.old","label":"Old Example","mark":"leftover","path":"Android/data/com.example.old","why":"gone","hidden":false},
+      {"name":"com.example.old","folder":".com.example.old","label":"Old Example","mark":"leftover","path":"Android/data/.com.example.old","why":"hidden","hidden":true},
+      {"name":"com.example.live","folder":"com.example.live","label":"Live Example","mark":"still","path":"Android/data/com.example.live","why":"installed","hidden":false},
+      {"name":"com.android.systemui","folder":"com.android.systemui","label":"Android System","mark":"still","path":"Android/data/com.android.systemui","why":"system","hidden":false},
+      {"name":"com.running.now","folder":"com.running.now","label":"Running Now","mark":"still","path":"Android/data/com.running.now","why":"running","hidden":false},
+      {"name":"Cache","folder":"Cache","label":"Cache","mark":"other","path":"Android/data/Cache","why":"name","hidden":false},
+      {"name":".thumbnails","folder":".thumbnails","label":"Thumbnails","mark":"other","path":"Android/data/.thumbnails","why":"name","hidden":true},
+      {"name":"notes.txt","folder":"notes.txt","label":"notes.txt","mark":"other","path":"Android/data/notes.txt","why":"file","hidden":false},
+      {"name":"com.example.old","folder":"com.example.old","label":"Old Example","mark":"leftover","path":"Android/obb/com.example.old","why":"gone","hidden":false}
+    ]};
+    function readScan() {
+      const raw = (document.getElementById('scan').textContent || '').trim();
+      try { return JSON.parse(raw); } catch (_) { return FALLBACK; }
+    }
+    const scan = readScan();
+    const leftovers = group(scan.hits.filter(h => h.mark === 'leftover'));
+    const still = scan.hits.filter(h => h.mark === 'still');
+    const other = scan.hits.filter(h => h.mark === 'other');
+    const aside = {};
+    const copies = {};
+    const files = {
+      'Android/data/com.example.old': [
+        { name: 'cache', directory: true, hidden: false },
+        { name: '.nomedia', directory: false, hidden: true, text: '' },
+        { name: 'notes.txt', directory: false, hidden: false, text: 'Old settings the app left behind.' }
+      ],
+      'Android/data/.com.example.old': [
+        { name: '.cache', directory: true, hidden: true }
+      ]
+    };
+    const packet = `Camera closed. A screen opened with nothing in it.
+Messages sat still and did not respond.
+This phone only. Nothing was uploaded.`;
+
+    const titles = {
+      leftovers: ['Leftovers', leftoverLead()],
+      files: ['Files', 'Three places. Leftovers can be opened, edited, set aside, or saved as a copy.'],
+      debug: ['Debug', 'Crashes and freezes on this phone. Copy a note. KUI Desk can open it.']
+    };
+
+    function leftoverLead() {
+      const n = Object.keys(leftovers).length;
+      if (n === 0) return 'No leftover app folders.';
+      if (n === 1) return 'One uninstalled app left folders behind, including hidden ones.';
+      return n + ' uninstalled apps left folders behind, including hidden ones.';
+    }
+
+    function group(hits) {
+      const map = {};
+      hits.forEach(h => { (map[h.name] ||= []).push(h); });
+      return map;
+    }
+
+    function titleOf(hit) { return hit.label || hit.name; }
+
+    function place(hit) {
+      if (hit.path.includes('Android/data')) return ['The app\'s own files', hit.hidden ? 'Hidden leftover still here' : 'What it stored for itself'];
+      if (hit.path.includes('Android/obb')) return ['Extra game files', 'Large extra files, often from games'];
+      if (hit.path.includes('Android/media')) return ['Photos from apps', 'Pictures and clips the app made'];
+      if (hit.path.includes('SetAside')) return ['Set aside', 'Waiting. Delete forever only works here.'];
+      if (hit.path.includes('Copies')) return ['Saved copy', 'A duplicate you kept'];
+      return ['App folder', hit.path];
+    }
+
+    function why(hit) {
+      if (hit.mark === 'leftover' && (hit.why === 'hidden' || hit.hidden)) return 'Hidden leftover. The app is gone.';
+      if (hit.mark === 'leftover') return 'This app is gone. Android left its files here.';
+      if (hit.hidden) return 'Hidden, and not an app leftover';
+      if (hit.why === 'installed') return 'Still installed';
+      if (hit.why === 'running') return 'Open right now';
+      if (hit.why === 'system') return 'Part of Android';
+      if (hit.why === 'file') return 'A file, not an app folder';
+      return 'Not an app name';
+    }
+
+    function hideActions() {
+      document.getElementById('sheet-go').hidden = true;
+      document.getElementById('sheet-copy').hidden = true;
+      document.getElementById('sheet-delete').hidden = true;
+      document.getElementById('sheet-edit').hidden = true;
+    }
+
+    function renderLeftovers() {
+      const root = document.getElementById('tab-leftovers');
+      const names = Object.keys(leftovers);
+      let html = '';
+      names.forEach(name => {
+        const places = leftovers[name];
+        const hidden = places.some(p => p.hidden);
+        html += `<button class="card" data-open="${name}" type="button"><p class="kicker">${hidden ? 'Hidden leftover' : 'Leftover'}</p><b>${titleOf(places[0])}</b><span>This app is gone, ${places.length} folder${places.length === 1 ? '' : 's'}</span></button>`;
+      });
+      if (still.length) {
+        html += `<p class="group">Still on the phone</p>`;
+        still.forEach(h => {
+          html += `<button class="row" data-file="${h.path}" type="button"><b>${titleOf(h)}</b><span>${why(h)}</span></button>`;
+        });
+      }
+      if (other.length) {
+        html += `<p class="group">Not leftovers</p>`;
+        other.forEach(h => {
+          html += `<button class="row" data-file="${h.path}" type="button"><b>${titleOf(h)}</b><span>${why(h)}</span></button>`;
+        });
+      }
+      const held = Object.keys(aside);
+      if (held.length) {
+        html += `<p class="group">Set aside</p>`;
+        held.forEach(name => {
+          const places = aside[name];
+          html += `<button class="row" data-held="${name}" type="button"><b>${titleOf(places[0])}</b><span>Waiting. You can save a copy or delete forever.</span></button>`;
+        });
+      }
+      const saved = Object.keys(copies);
+      if (saved.length) {
+        html += `<p class="group">Saved copies</p>`;
+        saved.forEach(name => {
+          html += `<button class="row" data-copy="${name}" type="button"><b>${titleOf(copies[name][0])}</b><span>A copy you kept on this phone.</span></button>`;
+        });
+      }
+      root.innerHTML = html || `<p class="empty">No leftover app folders.</p>`;
+      root.querySelectorAll('[data-open]').forEach(btn => btn.onclick = () => openLeftover(btn.dataset.open));
+      root.querySelectorAll('[data-file]').forEach(btn => btn.onclick = () => openFile(btn.dataset.file));
+      root.querySelectorAll('[data-held]').forEach(btn => btn.onclick = () => openHeld(btn.dataset.held));
+      root.querySelectorAll('[data-copy]').forEach(btn => btn.onclick = () => openCopy(btn.dataset.copy));
+    }
+
+    function renderFiles() {
+      const root = document.getElementById('tab-files');
+      const buckets = [
+        ['The app\'s own files', 'Android/data'],
+        ['Extra game files', 'Android/obb'],
+        ['Photos from apps', 'Android/media']
+      ];
+      let html = '';
+      buckets.forEach(([label, key]) => {
+        const live = scan.hits.filter(h => h.path.includes(key) && !aside[h.name]);
+        html += `<p class="group">${label}</p>`;
+        if (!live.length) html += `<p class="empty">Nothing here.</p>`;
+        live.forEach(h => {
+          const mark = h.mark === 'leftover' ? (h.hidden ? 'Hidden leftover' : 'Leftover') : why(h);
+          html += `<button class="row" data-file="${h.path}" type="button"><b>${titleOf(h)}</b><span>${mark}</span></button>`;
+        });
+      });
+      root.innerHTML = html;
+      root.querySelectorAll('[data-file]').forEach(btn => btn.onclick = () => openFile(btn.dataset.file));
+    }
+
+    function fillSheet(kicker, title, whyText, items, note) {
+      const sheet = document.getElementById('sheet');
+      sheet.hidden = false;
+      document.getElementById('sheet-kicker').textContent = kicker;
+      document.getElementById('sheet-title').innerHTML = title;
+      document.getElementById('sheet-why').textContent = whyText;
+      document.getElementById('sheet-list').innerHTML = items;
+      document.getElementById('sheet-note').textContent = note;
+      hideActions();
+      sheet.classList.add('on');
+    }
+
+    function openLeftover(name) {
+      const places = leftovers[name] || [];
+      fillSheet(
+        places.some(p => p.hidden) ? 'Hidden leftover' : 'Leftover from an uninstalled app',
+        `${titleOf(places[0])}<span class="id">${name}</span>`,
+        'This app is not on the phone anymore. You can open files, edit them, save a copy, or set the folders aside.',
+        places.map(h => {
+          const p = place(h);
+          return `<li data-inside="${h.path}"><b>${p[0]}</b><span>${p[1]} · ${h.folder || h.path}</span></li>`;
+        }).join(''),
+        'Set aside first if you might delete. Root is not required.'
+      );
+      document.querySelectorAll('#sheet-list [data-inside]').forEach(li => {
+        li.style.cursor = 'pointer';
+        li.onclick = () => openInside(li.getAttribute('data-inside'), name);
+      });
+      const go = document.getElementById('sheet-go');
+      const copy = document.getElementById('sheet-copy');
+      go.hidden = false;
+      copy.hidden = false;
+      go.textContent = 'Set aside';
+      copy.textContent = 'Save a copy';
+      go.onclick = () => {
+        aside[name] = places.slice();
+        delete leftovers[name];
+        titles.leftovers[1] = leftoverLead();
+        renderLeftovers();
+        renderFiles();
+        goTab('leftovers');
+      };
+      copy.onclick = () => {
+        copies[name] = places.slice();
+        document.getElementById('sheet-note').textContent = 'Copy saved on this phone. The leftover is still here.';
+        renderLeftovers();
+      };
+    }
+
+    function openInside(path, leftoverName) {
+      const kids = files[path] || [{ name: '(empty)', directory: false, hidden: false, text: '' }];
+      fillSheet(
+        path.includes('/.') || path.split('/').pop().startsWith('.') ? 'Hidden leftover files' : 'Inside this leftover',
+        path.split('/').pop(),
+        'Hidden names are included. Open a file to edit it.',
+        kids.map((k, i) => `<li data-edit="${i}"><b>${k.hidden ? 'Hidden · ' : ''}${k.name}</b><span>${k.directory ? 'Folder' : 'File'}</span></li>`).join(''),
+        leftoverName ? 'This is leftover from an uninstalled app.' : 'Not a leftover. We will not change it.'
+      );
+      if (!leftoverName) return;
+      document.querySelectorAll('#sheet-list [data-edit]').forEach(li => {
+        li.style.cursor = 'pointer';
+        li.onclick = () => {
+          const kid = kids[+li.getAttribute('data-edit')];
+          if (kid.directory) return;
+          document.getElementById('sheet-edit').hidden = false;
+          document.getElementById('sheet-text').value = kid.text || '';
+          const go = document.getElementById('sheet-go');
+          go.hidden = false;
+          go.textContent = 'Save edits';
+          go.onclick = () => {
+            kid.text = document.getElementById('sheet-text').value;
+            document.getElementById('sheet-note').textContent = 'Saved on this phone.';
+          };
+        };
+      });
+      document.getElementById('sheet-copy').hidden = false;
+      document.getElementById('sheet-copy').onclick = () => {
+        copies[leftoverName] = (leftovers[leftoverName] || aside[leftoverName] || []).slice();
+        document.getElementById('sheet-note').textContent = 'Copy saved on this phone.';
+        renderLeftovers();
+      };
+    }
+
+    function openHeld(name) {
+      const places = aside[name] || [];
+      fillSheet(
+        'Set aside',
+        titleOf(places[0]),
+        'These folders are out of the way. Delete forever only works here, and only if you confirm.',
+        places.map(h => {
+          const p = place(h);
+          return `<li><b>${p[0]}</b><span>${p[1]}</span></li>`;
+        }).join(''),
+        'This cannot be undone.'
+      );
+      const copy = document.getElementById('sheet-copy');
+      const del = document.getElementById('sheet-delete');
+      copy.hidden = false;
+      del.hidden = false;
+      copy.textContent = 'Save a copy';
+      del.textContent = 'Delete forever';
+      copy.onclick = () => {
+        copies[name] = places.slice();
+        document.getElementById('sheet-note').textContent = 'Copy saved. You can still delete the set-aside folders.';
+        renderLeftovers();
+      };
+      del.onclick = () => {
+        del.textContent = 'Confirm delete';
+        del.onclick = () => {
+          delete aside[name];
+          titles.leftovers[1] = leftoverLead();
+          renderLeftovers();
+          goTab('leftovers');
+        };
+      };
+    }
+
+    function openCopy(name) {
+      const places = copies[name] || [];
+      fillSheet(
+        'Saved copy',
+        titleOf(places[0]),
+        'This is a duplicate you kept. The original leftover was not deleted.',
+        places.map(h => `<li><b>${h.folder || h.path}</b><span>Copy on this phone</span></li>`).join(''),
+        'Nothing was uploaded.'
+      );
+    }
+
+    function openFile(path) {
+      const hit = scan.hits.find(h => h.path === path);
+      if (!hit) return;
+      if (hit.mark === 'leftover' && leftovers[hit.name]) return openLeftover(hit.name);
+      if (aside[hit.name]) return openHeld(hit.name);
+      fillSheet(
+        hit.mark === 'still' ? 'Still on the phone' : 'Not a leftover',
+        titleOf(hit),
+        hit.mark === 'still'
+          ? 'This is still in use. We will not offer it for cleanup or edits.'
+          : 'This is not an app leftover. We never guess.',
+        `<li><b>${place(hit)[0]}</b><span>${why(hit)}</span></li>`,
+        'We leave this where it is.'
+      );
+    }
+
+    function goTab(name) {
+      const sheet = document.getElementById('sheet');
+      const lesson = document.getElementById('lesson');
+      sheet.classList.remove('on');
+      sheet.hidden = true;
+      lesson.classList.remove('on');
+      lesson.hidden = true;
+      hideActions();
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + name));
+      document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.go === name));
+      document.getElementById('title').textContent = titles[name][0];
+      document.getElementById('sub').textContent = titles[name][1];
+      document.getElementById('how').hidden = false;
+    }
+
+    const lessonPages = [
+      { t: 'Your phone keeps files after you remove an app.', b: 'We show leftover folders, including hidden names. Nothing is deleted until you set it aside and confirm.' },
+      { t: 'We look in three places. Nowhere else.', b: 'The app\'s own files, extra game files, and photos from apps.' },
+      { t: 'If the app is still on the phone, we leave it.', b: 'Installed, open, or part of Android — we will not offer those folders.' },
+      { t: 'If it is not an app, it is not leftover.', b: 'We never guess. Guessing is how files get deleted by mistake.' },
+      { t: 'Set aside first. Delete is caution.', b: 'The red-gold buttons are Save a copy and Delete forever. Root is not required. KUI Desk can do this on phones you plug into the computer.' }
+    ];
+    let li = 0;
+    function showLesson(n) {
+      li = n;
+      const page = lessonPages[n];
+      document.getElementById('lesson-title').textContent = page.t;
+      document.getElementById('lesson-body').textContent = page.b;
+      document.getElementById('lesson-list').innerHTML = '';
+      document.getElementById('lesson-back').hidden = n === 0;
+      document.getElementById('lesson-next').textContent = n === lessonPages.length - 1 ? 'Done' : 'Continue';
+      const lesson = document.getElementById('lesson');
+      lesson.hidden = false;
+      lesson.classList.add('on');
+    }
+
+    document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => goTab(b.dataset.go));
+    document.getElementById('how').onclick = () => showLesson(0);
+    document.getElementById('skip').onclick = () => goTab('leftovers');
+    document.getElementById('lesson-back').onclick = () => { if (li > 0) showLesson(li - 1); };
+    document.getElementById('lesson-next').onclick = () => {
+      if (li < lessonPages.length - 1) showLesson(li + 1);
+      else goTab('leftovers');
+    };
+    document.getElementById('sheet-back').onclick = () => goTab(document.querySelector('nav.tabs button.on').dataset.go);
+    document.getElementById('sheet-close').onclick = () => goTab(document.querySelector('nav.tabs button.on').dataset.go);
+    async function copyNote() {
+      const out = document.getElementById('copied');
+      out.hidden = false;
+      try {
+        await navigator.clipboard.writeText(packet);
+        out.textContent = 'Copied. The note stayed on this machine.';
+      } catch (_) {
+        out.textContent = 'Could not copy. The note is on the screen below.';
+        out.insertAdjacentHTML('afterend', '<pre id="note-plain">' + packet.replace(/</g, '') + '</pre>');
+      }
+    }
+    document.getElementById('send').onclick = copyNote;
+    function openIssue(title, why, where) {
+      fillSheet('On this phone', title, why,
+        '<li><b>Where</b><span>' + where + '</span></li><li><b>What we do</b><span>Copy a short note. KUI Desk can open it on the computer.</span></li>',
+        'Nothing was uploaded.');
+      const go = document.getElementById('sheet-go');
+      go.hidden = false;
+      go.textContent = 'Copy a short note';
+      go.onclick = copyNote;
+    }
+    document.getElementById('crash-card').onclick = () =>
+      openIssue('Camera closed', 'A screen opened with nothing in it, so Camera closed.', 'Camera');
+    document.getElementById('freeze-card').onclick = () =>
+      openIssue('Messages sat still', 'The app did not respond.', 'Messages');
+
+    renderLeftovers();
+    renderFiles();
+    document.getElementById('status').textContent = 'This phone, ready';
+    goTab('leftovers');
+  </script>
+</body>
+</html>
